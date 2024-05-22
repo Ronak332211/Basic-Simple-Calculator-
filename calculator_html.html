@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calculator</title>
+    <style>
+        /* CSS Styles */
+        .calculator {
+            width: 300px;
+            margin: 50px auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            position: relative; /* Relative positioning for child elements */
+        }
+
+        #result {
+            width: calc(100% - 20px); /* Adjusted width to fit within the calculator */
+            height: 60px; /* Increased height */
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 18px;
+            text-align: right;
+            display: inline-block; /* Added to make it inline with buttons */
+            vertical-align: top; /* Aligns with the top of the buttons */
+        }
+
+        #history {
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 14px;
+            text-align: left;
+            width: 50%; /* Half of the calculator's width */
+            height: 150px;
+            overflow-y: auto;
+            display: none; /* Initially hidden */
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #f2f2f2;
+            border: 1px solid #ccc;
+            border-radius: 0 0 5px 5px;
+            z-index: 1; /* Ensure it's above other content */
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 5px;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px; /* Rounded corners */
+            background-color: #c2edfc; /* Light blue background */
+            color: #1a1aa0; /* Dark blue text color */
+        }
+
+        /* Styling for specific buttons */
+        button.equals {
+            background-color: #2828ad; /* Dark blue background for equals button */
+            color: #ffffff; /* White text color for equals button */
+        }
+
+        button.history {
+            background-color: #ccc; /* Light gray background for history button */
+            color: #000; /* Black text color for history button */
+        }
+
+        button.back {
+            background-color: #ccc; /* Light gray background for back button */
+            color: #000; /* Black text color for back button */
+        }
+
+        button:hover {
+            background-color: #97d9f3; /* Light blue background on hover */
+        }
+
+        /* Bold text */
+        button,
+        button.equals,
+        button.history,
+        button.back {
+            font-weight: bold;
+        }
+
+        /* Light grey background for numbers, decimal point, and percentage buttons */
+        button.numbers {
+            background-color: #ccc;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <input type="text" id="result" readonly>
+        <div id="history"></div> <!-- History box -->
+        <div class="buttons">
+            <!-- HTML Content -->
+            <button class="ac" onclick="clearResult()">AC</button>
+            <button class="c" onclick="deleteLastDigit()">C</button>
+            <button class="plusminus" onclick="addMinus()">+/-</button>
+            <button class="add" onclick="appendToResult('+')">+</button>
+            <button class="numbers" onclick="appendToResult('7')">7</button>
+            <button class="numbers" onclick="appendToResult('8')">8</button>
+            <button class="numbers" onclick="appendToResult('9')">9</button>
+            <button class="divide" onclick="appendToResult('/')">/</button>
+            <button class="numbers" onclick="appendToResult('4')">4</button>
+            <button class="numbers" onclick="appendToResult('5')">5</button>
+            <button class="numbers" onclick="appendToResult('6')">6</button>
+            <button class="subtract" onclick="appendToResult('-')">-</button>
+            <button class="numbers" onclick="appendToResult('1')">1</button>
+            <button class="numbers" onclick="appendToResult('2')">2</button>
+            <button class="numbers" onclick="appendToResult('3')">3</button>
+            <button class="multiply" onclick="appendToResult('*')">*</button>
+            <button class="numbers" onclick="appendToResult('%')">%</button>
+            <button class="numbers" onclick="appendToResult('0')">0</button>
+            <button class="numbers" onclick="appendToResult('.')">.</button>
+            <button class="equals" onclick="calculateResult()">=</button>
+        </div>
+        <button class="history" onclick="toggleHistory()">History</button> <!-- History button -->
+    </div>
+
+    <script>
+        // JavaScript Code
+        let result = document.getElementById('result');
+        let historyBox = document.getElementById('history');
+        let history = [];
+
+        function appendToResult(value) {
+            result.value += value;
+        }
+
+        function clearResult() {
+            result.value = '';
+        }
+
+        function deleteLastDigit() {
+            result.value = result.value.slice(0, -1); // Removes the last character from the result
+        }
+
+        function addMinus() {
+            if (result.value.charAt(0) === '-') {
+                result.value = result.value.slice(1); // Remove existing minus sign
+            } else {
+                result.value = '-' + result.value;
+            }
+        }
+
+        function calculateResult() {
+            try {
+                let calculation = result.value + ' = ' + eval(result.value);
+                result.value = eval(result.value);
+                addToHistory(calculation);
+            } catch(error) {
+                result.value = 'Error';
+            }
+        }
+
+        function addToHistory(calculation) {
+            history.unshift(calculation); // Add the calculation to the beginning of the history array
+            if (history.length > 10) {
+                history.pop(); // Remove the oldest calculation if history exceeds 10 entries
+            }
+        }
+
+        function toggleHistory() {
+            if (historyBox.style.display === 'none') {
+                historyBox.style.display = 'block';
+                showHistory();
+            } else {
+                historyBox.style.display = 'none';
+            }
+        }
+
+        function showHistory() {
+            historyBox.innerHTML = ''; // Clear previous history
+            history.forEach(entry => {
+                historyBox.innerHTML += entry + '<br>';
+            });
+            // Add clear history button and back button
+            historyBox.innerHTML += '<button class="back" onclick="toggleHistory()">Back</button>';
+            historyBox.innerHTML += '<button onclick="clearHistory()">Clear History</button>';
+        }
+
+        function clearHistory() {
+            history = [];
+            historyBox.innerHTML = ''; // Clear history box
+            historyBox.style.display = 'none'; // Hide history box after clearing
+        }
+    </script>
+</body>
+</html>
+
+
+
